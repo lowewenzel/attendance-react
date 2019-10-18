@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://wnzl.lo:4252/api';
+const API_URL = 'https://attendance-go.herokuapp.com/api';
 
 export const getGroups = async token => {
   const res = await axios.get(`${API_URL}/groups?token=${token}`);
