@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import Typography from '@material-ui/core/Typography';
+import Grow from '@material-ui/core/Grow';
+
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import { Flipper, Flipped } from 'react-flip-toolkit';
@@ -14,11 +16,7 @@ import GroupNew from './GroupNew';
 const useStyles = makeStyles({
   grid: {
     marginTop: 40,
-    display: 'grid',
-    gridTemplateColumns: ' repeat(5, 1fr)',
-    gridTemplateRows: 'repeat(5, 1fr)',
-    gridColumnGap: '10px',
-    gridRowGap: '10px'
+    display: 'flex'
   },
   header: {
     display: 'flex'
@@ -32,7 +30,8 @@ const useStyles = makeStyles({
     background: '#fff',
     padding: 60,
     borderRadius: 5,
-    transition: '0.5s'
+    transition: '0.5s',
+    flex: 1
   },
   groupsContainer: {
     display: 'flex',
@@ -49,13 +48,16 @@ const useStyles = makeStyles({
     background: '#fff',
     padding: 60,
     borderRadius: 5,
-    transition: '0.5s'
+    transition: '0.5s',
+    minWidth: 500,
+    marginLeft: 20
   }
 });
 
 const GroupsView = ({ groups, refresh }) => {
   const classes = useStyles();
   const [showNewGroup, setShowNewGroup] = useState(false);
+  const [transitionIn, setTransitionIn] = useState(false);
 
   const handleClickNewGroup = () => {
     setShowNewGroup(true);
@@ -66,62 +68,58 @@ const GroupsView = ({ groups, refresh }) => {
     refresh();
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      setTransitionIn(true);
+    }, 10000);
+  }, []);
+
   return (
-    <Flipper flipKey={showNewGroup}>
-      <div className={classes.grid}>
-        <Flipped flipId='groups'>
-          <div
-            className={classes.groups}
-            style={{
-              gridArea: showNewGroup ? '1 / 1 / 4 / 4' : '1 / 1 / 6 / 6'
-            }}
+    <div className={classes.grid}>
+      <div className={classes.groups}>
+        <div className={classes.header}>
+          <Typography variant='h4' color='primary' className={classes.title}>
+            Your Groups
+          </Typography>
+          <Button
+            color='secondary'
+            variant='outlined'
+            className={classes.addButton}
+            onClick={handleClickNewGroup}
           >
-            <div className={classes.header}>
-              <Typography
-                variant='h4'
-                color='primary'
-                className={classes.title}
-              >
-                Your Groups
-              </Typography>
-              <Button
-                color='secondary'
-                variant='outlined'
-                className={classes.addButton}
-                onClick={handleClickNewGroup}
-              >
-                +
-              </Button>
-            </div>
-            <hr className={classes.hr} />
-            <div className={classes.groupsContainer}>
-              {groups.map(group => (
-                <GroupCard
-                  key={group.ID}
-                  groupName={group.groupName}
-                  memberName={group.memberName}
-                  groupId={group.ID}
-                />
-              ))}
-            </div>
-          </div>
-        </Flipped>
-        <Flipped flipId='newGroup'>
-          <div
-            className={classes.newGroup}
-            style={{
-              gridArea: showNewGroup ? '1 / 4 / 4 / 6' : '0 / 0 / 0 / 0',
-              display: showNewGroup ? 'inherit' : 'none',
-              width: showNewGroup ? 'initial' : 0
-            }}
-          >
-            {showNewGroup && (
-              <GroupNew closeNewGroup={handleCloseNewGroup} refresh={refresh} />
-            )}
-          </div>
-        </Flipped>
+            +
+          </Button>
+        </div>
+        <hr className={classes.hr} />
+        <div className={classes.groupsContainer}>
+          {groups.map((group, i) => (
+            <Grow
+              in={transitionIn}
+              key={`group-${group.ID}`}
+              // mountOnEnter
+              // style={{
+              //   transformOrigin: '0 0 0',
+              //   transitionDelay: `${2 * i * 100}ms`
+              // }}
+              // timeout={'1600'}
+            >
+              <GroupCard
+                groupName={group.groupName}
+                memberName={group.memberName}
+                groupId={group.ID}
+              />
+            </Grow>
+          ))}
+        </div>
       </div>
-    </Flipper>
+      {showNewGroup && (
+        <Grow in={showNewGroup}>
+          <div className={classes.newGroup}>
+            <GroupNew closeNewGroup={handleCloseNewGroup} refresh={refresh} />
+          </div>
+        </Grow>
+      )}
+    </div>
   );
 };
 
