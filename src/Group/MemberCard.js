@@ -69,6 +69,10 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       opacity: 1
     }
+  },
+  checkbox: {
+    marginLeft: 5,
+    marginRight: 5
   }
 }));
 
@@ -101,6 +105,7 @@ const MemberCard = ({ member, onCheck, checked, status, markAttendance }) => {
         onChange={onCheck(member.ID)}
         value={member.ID}
         color='primary'
+        className={classes.checkbox}
       />
       <Typography variant='body2' color='primary' className={classes.name}>
         {member.name}

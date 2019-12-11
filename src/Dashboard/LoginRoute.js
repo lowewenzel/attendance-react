@@ -236,7 +236,7 @@ const LoginRoute = () => {
       const token = isLogin
         ? await postLogin({ email, password })
         : await postSignup({ email, password });
-      context.setUserState({ ...context.data, token });
+      context.setUserState({ ...context.data, token, email });
     } catch (err) {
       console.error(err.response);
       if (err.response && err.response.data && err.response.data.message) {

@@ -79,7 +79,7 @@ const GroupsView = ({ groups, refresh }) => {
       <div className={classes.groups}>
         <div className={classes.header}>
           <Typography variant='h4' color='primary' className={classes.title}>
-            Your Groups
+            My Groups
           </Typography>
           <Button
             color='secondary'
@@ -96,12 +96,12 @@ const GroupsView = ({ groups, refresh }) => {
             <Grow
               in={transitionIn}
               key={`group-${group.ID}`}
-              // mountOnEnter
-              // style={{
-              //   transformOrigin: '0 0 0',
-              //   transitionDelay: `${2 * i * 100}ms`
-              // }}
-              // timeout={'1600'}
+            // mountOnEnter
+            // style={{
+            //   transformOrigin: '0 0 0',
+            //   transitionDelay: `${2 * i * 100}ms`
+            // }}
+            // timeout={'1600'}
             >
               <GroupCard
                 groupName={group.groupName}

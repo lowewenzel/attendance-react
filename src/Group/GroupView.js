@@ -1,17 +1,23 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { makeStyles } from '@material-ui/styles';
+import classNames from 'classnames';
+import moment from 'moment';
+import { useParams } from 'react-router-dom';
+
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
-import moment from 'moment';
-import { useParams } from 'react-router-dom';
+import IconButton from '@material-ui/core/IconButton';
+import CheckIcon from '@material-ui/icons/Check';
+import BangIcon from '@material-ui/icons/PriorityHigh';
+import FlagIcon from '@material-ui/icons/Flag';
 import { getGroup, getAttendance, putAttendance } from '../apiRequests';
 import AppContext from '../AppContext';
 import MemberCard from './MemberCard';
 import { getDayAsFormatted } from '../helpers';
 import MemberNew from './MemberNew';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
     flexFlow: 'column'
@@ -45,8 +51,33 @@ const useStyles = makeStyles({
     padding: '40px 80px',
     marginLeft: 10,
     borderRadius: 10
+  },
+  yellowColor: {
+    color: theme.palette.statusYellow.main
+  },
+  redColor: {
+    color: theme.palette.statusRed.main
+  },
+  greenColor: {
+    color: theme.palette.statusGreen.main
+  },
+  lowPacity: {
+    opacity: 0.3
+  },
+
+  actionItem: {
+    '&:hover': {
+      opacity: 1
+    }
+  },
+  bulkActionsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginRight: 10,
+    marginBottom: 10
   }
-});
+}));
 
 const GroupView = ({
   group,
@@ -79,6 +110,8 @@ const GroupView = ({
     setNewMemberOpen(true);
   };
 
+  const handleBulkAttendance = useCallback(() => { }, [])
+
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -106,6 +139,47 @@ const GroupView = ({
         >
           Add Member
         </Button>
+      </div>
+      <div className={classes.bulkActionsContainer}>
+        <Typography variant="caption" style={{ color: '#999', marginRight: 5 }}>
+          Mark All
+        </Typography>
+        <IconButton
+          className={classNames([
+            classes.yellowColor,
+            classes.actionItem,
+            classes.lowPacity
+          ])}
+          onClick={() => {
+            handleBulkAttendance('3');
+          }}
+        >
+          <FlagIcon />
+        </IconButton>
+        <IconButton
+          className={classNames([
+            classes.redColor,
+            classes.actionItem,
+            classes.lowPacity
+          ])}
+          onClick={() => {
+            handleBulkAttendance('2');
+          }}
+        >
+          <BangIcon />
+        </IconButton>
+        <IconButton
+          className={classNames([
+            classes.greenColor,
+            classes.actionItem,
+            classes.lowPacity
+          ])}
+          onClick={() => {
+            handleBulkAttendance('1');
+          }}
+        >
+          <CheckIcon />
+        </IconButton>
       </div>
 
       <div className={classes.contentContainer}>
@@ -136,7 +210,7 @@ const GroupView = ({
   );
 };
 
-const GroupViewWithData = ({}) => {
+const GroupViewWithData = ({ }) => {
   const context = useContext(AppContext);
   const [group, setGroup] = useState(null);
   const [attendance, setAttendance] = useState(null);
@@ -233,8 +307,8 @@ const GroupViewWithData = ({}) => {
       refresh={refreshGroup}
     />
   ) : (
-    <CircularProgress color='primary' />
-  );
+      <CircularProgress color='primary' />
+    );
 };
 
 export default GroupViewWithData;

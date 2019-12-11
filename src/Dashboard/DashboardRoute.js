@@ -2,12 +2,14 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { getGroups } from '../apiRequests';
 import Typography from '@material-ui/core/Typography';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Button, IconButton } from '@material-ui/core';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Link, useLocation, Switch, Route } from 'react-router-dom';
 
 import GroupsView from '../Group/GroupsView';
 import GroupView from '../Group/GroupView';
 import AppContext from '../AppContext';
+import ProfileView from '../Profile/ProfileView';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -39,18 +41,34 @@ const useStyles = makeStyles(theme => ({
   },
   dashboardBrowserContainer: {
     marginBottom: 50
+  },
+  userHeader: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center'
   }
 }));
 
-const DashboardView = () => {
+const DashboardView = ({ goBack, path }) => {
   const classes = useStyles();
   const { pathname } = useLocation();
 
   return (
     <div className={classes.root}>
-      <Typography variant='subtitle2' color='primary'>
-        DASHBOARD
+      <div className={classes.userHeader}>
+        {
+          path !== "/" &&
+          <IconButton onClick={goBack}>
+            <ChevronLeftIcon />
+          </IconButton>
+        }
+        <Typography variant='subtitle2' color='primary'>
+          DASHBOARD
       </Typography>
+
+
+
+      </div>
       <div className={classes.header}>
         <div className={classes.headerLinks}>
           <Link
@@ -59,7 +77,7 @@ const DashboardView = () => {
               pathname === '/' || pathname === ''
                 ? classes.activeSelection
                 : classes.inactiveSelection
-            } ${classes.headerLink}`}
+              } ${classes.headerLink}`}
           >
             <Typography variant='h5'>Groups</Typography>
           </Link>
@@ -69,7 +87,7 @@ const DashboardView = () => {
               pathname === '/members'
                 ? classes.activeSelection
                 : classes.inactiveSelection
-            } ${classes.headerLink}`}
+              } ${classes.headerLink}`}
           >
             <Typography variant='h5'>Members</Typography>
           </Link>
@@ -80,7 +98,7 @@ const DashboardView = () => {
               pathname === '/profile'
                 ? classes.activeSelection
                 : classes.inactiveSelection
-            } ${classes.headerLink}`}
+              } ${classes.headerLink}`}
           >
             <Typography variant='h5'>Profile</Typography>
           </Link>
@@ -89,6 +107,7 @@ const DashboardView = () => {
       <div className={classes.dashboardBrowserContainer}>
         <Switch>
           <Route component={GroupsView} path='/' exact />
+          <Route component={ProfileView} path='/profile' exact />
           <Route component={GroupView} path='/groups/:groupId' exact />
           <Route component={GroupView} path='/groups/:groupId/:date' exact />
         </Switch>
@@ -97,8 +116,8 @@ const DashboardView = () => {
   );
 };
 
-const DashboardRoute = ({}) => {
-  return <DashboardView />;
+const DashboardRoute = ({ history, location }) => {
+  return <DashboardView goBack={history.goBack} path={location.pathname} />;
 };
 
 export default DashboardRoute;
