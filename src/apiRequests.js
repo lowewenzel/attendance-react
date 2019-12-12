@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://attendance-go.herokuapp.com/api';
+const API_URL = 'https://tend.site/api';
 // const API_URL = 'http://localhost:1444/api';
 
 export const getGroups = async token => {
