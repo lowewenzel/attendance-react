@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider, makeStyles } from '@material-ui/styles';
+
 import DashboardRoute from './Dashboard/DashboardRoute';
 import AttendanceAppBar from './comp/AttendanceAppBar';
 import AppContext, { defaultContext } from './AppContext';

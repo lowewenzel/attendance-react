@@ -45,7 +45,6 @@ const GroupCard = ({ groupName, memberName, groupId }) => {
 
   const handleMenuClick = e => {
     e.preventDefault();
-    alert('clicked');
   };
 
   return (

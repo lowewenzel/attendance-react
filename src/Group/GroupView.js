@@ -3,15 +3,25 @@ import { makeStyles } from '@material-ui/styles';
 import classNames from 'classnames';
 import moment from 'moment';
 import { useParams } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import ButtonBase from '@material-ui/core/ButtonBase';
+
 import Button from '@material-ui/core/Button';
+import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import CheckIcon from '@material-ui/icons/Check';
 import BangIcon from '@material-ui/icons/PriorityHigh';
 import FlagIcon from '@material-ui/icons/Flag';
-import { getGroup, getAttendance, putAttendance } from '../apiRequests';
+import {
+  getGroup,
+  getAttendance,
+  putAttendance,
+  putBulk
+} from '../apiRequests';
 import AppContext from '../AppContext';
 import MemberCard from './MemberCard';
 import { getDayAsFormatted } from '../helpers';
@@ -76,6 +86,14 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'flex-end',
     marginRight: 10,
     marginBottom: 10
+  },
+  checkbox: {
+    marginRight: 'auto',
+    marginLeft: 15
+  },
+  buttonBase: {
+    padding: 10,
+    marginBottom: 10
   }
 }));
 
@@ -86,11 +104,16 @@ const GroupView = ({
   date,
   attendance,
   markAttendance,
-  refresh
+  bulkAttendance,
+  refresh,
+  history
 }) => {
   const classes = useStyles();
   const [checkedMemberIds, setChecked] = useState(new Set([]));
   const [newMemberOpen, setNewMemberOpen] = useState(false);
+  const [gardenDate, setDate] = useState(date.toDate());
+
+  const isAllSelected = checkedMemberIds.size === group.members.length;
 
   const onCheck = name => e => {
     const newSet = new Set(checkedMemberIds);
@@ -110,7 +133,31 @@ const GroupView = ({
     setNewMemberOpen(true);
   };
 
-  const handleBulkAttendance = useCallback(() => { }, [])
+  const handleBulkAttendance = useCallback(
+    status => {
+      checkedMemberIds.size === 0
+        ? bulkAttendance(
+            group.members.map(member => member.ID),
+            status
+          )
+        : bulkAttendance(Array.from(checkedMemberIds), status);
+    },
+    [bulkAttendance, checkedMemberIds, group.members]
+  );
+
+  const selectAll = useCallback(() => {
+    isAllSelected
+      ? setChecked(new Set([]))
+      : setChecked(new Set(group.members.map(member => member.ID)));
+  }, [group.members, isAllSelected]);
+
+  const goToDate = newDate => {
+    setDate(newDate);
+    const urlArray = history.location.pathname.split('/');
+    history.push(
+      `${urlArray.slice(0, 3).join('/')}/${moment(newDate).format('YYYYMMDD')}`
+    );
+  };
 
   return (
     <div className={classes.root}>
@@ -124,9 +171,17 @@ const GroupView = ({
           </Typography>
         </div>
         <div className={classes.dateContainer}>
-          <Typography variant='h3' color='secondary'>
-            {date.format('MMM Do YYYY')}
-          </Typography>
+          <DatePicker
+            selected={gardenDate}
+            onChange={goToDate}
+            customInput={
+              <ButtonBase className={classes.buttonBase}>
+                <Typography variant='h3' color='secondary'>
+                  {date.format('MMM Do YYYY')}
+                </Typography>
+              </ButtonBase>
+            }
+          />
         </div>
       </div>
       <div className={classes.actionsContainer}>
@@ -141,8 +196,14 @@ const GroupView = ({
         </Button>
       </div>
       <div className={classes.bulkActionsContainer}>
-        <Typography variant="caption" style={{ color: '#999', marginRight: 5 }}>
-          Mark All
+        <Checkbox
+          checked={isAllSelected}
+          onChange={selectAll}
+          color='primary'
+          className={classes.checkbox}
+        />
+        <Typography variant='caption' style={{ color: '#999', marginRight: 5 }}>
+          {checkedMemberIds.size > 0 ? 'Mark Selected' : 'Mark All'}
         </Typography>
         <IconButton
           className={classNames([
@@ -210,10 +271,11 @@ const GroupView = ({
   );
 };
 
-const GroupViewWithData = ({ }) => {
+const GroupViewWithData = ({ history }) => {
   const context = useContext(AppContext);
   const [group, setGroup] = useState(null);
   const [attendance, setAttendance] = useState(null);
+  const [loaded, setLoaded] = useState(false);
   const { groupId, date } = useParams();
 
   let newDate, formattedNewDate;
@@ -228,6 +290,44 @@ const GroupViewWithData = ({ }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([]);
+
+  const bulkAttendance = async (memberIds, status) => {
+    // Lazy loading :-)
+    const original = { ...attendance };
+    const lazyAttendance = {
+      ...attendance,
+      ids: {
+        ...attendance.ids,
+        ...memberIds.reduce((obj, nextId) => ({ ...obj, [nextId]: status }), {})
+      }
+    };
+
+    setAttendance(lazyAttendance);
+
+    try {
+      const res = await putBulk(
+        groupId,
+        formattedNewDate,
+        memberIds,
+        status,
+        context.data.token
+      );
+      const newAttendance = {
+        ...attendance,
+        ids: {
+          ...attendance.ids,
+          ...res.results.map(result => ({
+            [result.memberId]: result.statusType
+          }))
+        }
+      };
+      setAttendance(newAttendance);
+      //yay
+    } catch (err) {
+      setError([...error, err.response].join('. '));
+      setAttendance(original);
+    }
+  };
 
   const markAttendance = async (memberId, status) => {
     // Lazy loading :-)
@@ -294,7 +394,8 @@ const GroupViewWithData = ({ }) => {
 
   useEffect(() => {
     refreshGroup();
-  }, [refreshGroup]);
+    setLoaded(true);
+  }, [refreshGroup, loaded, date]);
 
   return !loading && group && attendance ? (
     <GroupView
@@ -303,12 +404,14 @@ const GroupViewWithData = ({ }) => {
       error={error}
       date={newDate}
       attendance={attendance}
+      bulkAttendance={bulkAttendance}
       markAttendance={markAttendance}
       refresh={refreshGroup}
+      history={history}
     />
   ) : (
-      <CircularProgress color='primary' />
-    );
+    <CircularProgress color='primary' />
+  );
 };
 
 export default GroupViewWithData;

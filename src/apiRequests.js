@@ -62,13 +62,13 @@ export const putBulk = async (groupId, date, members, status, token) => {
   const res = await axios.put(
     `${API_URL}/group/bulk/${groupId}/${date}?token=${token}`,
     {
-      members,
-      value: status,
+      members: members.map(String),
+      value: status
     }
   );
 
   return res.data;
-}
+};
 
 export const postMember = async (
   { name, preferredName = '' },
@@ -81,4 +81,10 @@ export const postMember = async (
   });
 
   return true;
+};
+
+export const getAllMembers = async token => {
+  const res = await axios.get(`${API_URL}/members?token=${token}`);
+
+  return res.data;
 };

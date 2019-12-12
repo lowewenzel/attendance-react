@@ -109,6 +109,7 @@ const MemberCard = ({ member, onCheck, checked, status, markAttendance }) => {
       />
       <Typography variant='body2' color='primary' className={classes.name}>
         {member.name}
+        {member.preferredName ? ` (${member.preferredName})` : null}
       </Typography>
       <div className={classes.actions}>
         <IconButton
