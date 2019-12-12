@@ -16,6 +16,11 @@ const useStyles = makeStyles({
     flexFlow: 'column',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  '@media (max-width:768px)': {
+    root: {
+      marginLeft: 0
+    }
   }
 });
 

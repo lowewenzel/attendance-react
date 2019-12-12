@@ -28,6 +28,17 @@ const useStyles = makeStyles({
   img: {
     width: 32,
     height: 32
+  },
+  '@media (max-width:768px)': {
+    root: {
+      height: 64,
+      maxWidth: '100vw',
+      display: 'flex',
+      flexFlow: 'row',
+      padding: '5px',
+      textAlign: 'initial',
+      justifyContent: 'center'
+    }
   }
 });
 
