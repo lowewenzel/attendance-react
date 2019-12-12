@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { makeStyles } from '@material-ui/styles';
+import { useHistory } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import DoneIcon from '@material-ui/icons/Done';
 import FaceIcon from '@material-ui/icons/Face';
+
+import logo from '../img/logo.png';
 // import { loginCookie } from '../apiRequests';
 
 const useStyles = makeStyles({
@@ -21,11 +24,18 @@ const useStyles = makeStyles({
   itemContainer: {
     marginBottom: 'auto'
   },
-  buttons: { marginLeft: 'auto' }
+  buttons: { marginLeft: 'auto' },
+  img: {
+    width: 32,
+    height: 32
+  }
 });
 
 const AttendanceAppBar = ({}) => {
   const classes = useStyles();
+  const history = useHistory();
+
+  const goHome = useCallback(() => history.push('/'), [history]);
 
   return (
     <AppBar
@@ -35,12 +45,12 @@ const AttendanceAppBar = ({}) => {
       elevation={1}
     >
       <div className={classes.itemContainer}>
-        <IconButton>
-          <DoneIcon color='primary' />
+        <IconButton onClick={goHome}>
+          <img src={logo} className={classes.img} />
         </IconButton>
       </div>
 
-      <div>
+      {/* <div>
         <IconButton
           onClick={() => {
             // loginCookie();
@@ -48,7 +58,7 @@ const AttendanceAppBar = ({}) => {
         >
           <FaceIcon style={{ color: '#fff' }} />
         </IconButton>
-      </div>
+      </div> */}
       {/* <div className={classes.buttons}>
           <Button label='Groups' />
         </div> */}

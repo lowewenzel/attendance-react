@@ -58,9 +58,9 @@ const App = () => {
         {context => (
           <ThemeProvider theme={theme}>
             <div>
-              <AttendanceAppBar />
               <div className={classes.root}>
                 <Router>
+                  <AttendanceAppBar />
                   {context.data && context.data.token ? (
                     <Route path='/' component={DashboardRoute} />
                   ) : (
