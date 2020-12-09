@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const API_URL = 'https://tend.site/api';
+const API_URL = 'https://tendgo.herokuapp.com/api';
 // const API_URL = 'http://localhost:1444/api';
 
-export const getGroups = async token => {
+export const getGroups = async (token) => {
   const res = await axios.get(`${API_URL}/groups?token=${token}`);
 
   return res && res.data;
@@ -12,7 +12,7 @@ export const getGroups = async token => {
 export const postSignup = async ({ email, password }) => {
   const res = await axios.post(`${API_URL}/signup`, {
     email,
-    password
+    password,
   });
 
   return res.data.token;
@@ -21,7 +21,7 @@ export const postSignup = async ({ email, password }) => {
 export const postLogin = async ({ email, password }) => {
   const res = await axios.post(`${API_URL}/login`, {
     email,
-    password
+    password,
   });
 
   return res.data.token;
@@ -30,7 +30,7 @@ export const postLogin = async ({ email, password }) => {
 export const postGroup = async ({ groupName, memberName }, token) => {
   const res = await axios.post(`${API_URL}/groups?token=${token}`, {
     groupName,
-    memberName
+    memberName,
   });
 
   return res.data;
@@ -63,7 +63,7 @@ export const putBulk = async (groupId, date, members, status, token) => {
     `${API_URL}/group/bulk/${groupId}/${date}?token=${token}`,
     {
       members: members.map(String),
-      value: status
+      value: status,
     }
   );
 
@@ -77,13 +77,13 @@ export const postMember = async (
 ) => {
   await axios.post(`${API_URL}/group/${groupId}/members?token=${token}`, {
     name,
-    preferredName
+    preferredName,
   });
 
   return true;
 };
 
-export const getAllMembers = async token => {
+export const getAllMembers = async (token) => {
   const res = await axios.get(`${API_URL}/members?token=${token}`);
 
   return res.data;
